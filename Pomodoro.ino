@@ -21,6 +21,7 @@ unsigned long pauseTime = 0; // to store when the stopwatch was paused
 byte pomodoroTimer = 25; //Pomodoro Timer value
 bool anybuttonPressed = false; //to avoid conflicts with the if loops
 bool stopwatch_pause = false; // to check whether stopwatch is paused
+bool buzzer_sound =  false; //used in giving alarm only once
 
 
 void setup() 
@@ -34,7 +35,7 @@ void setup()
   pinMode(down,INPUT_PULLUP);
   pinMode(left,INPUT_PULLUP);
   pinMode(right,INPUT_PULLUP);
-
+  pinMode(buzzer,OUTPUT);
   init_setup();//used to check the working of a buttons
   
 }
@@ -96,12 +97,14 @@ void loop()
        pomodoro_active = true;
        pomodoro_start = millis()/1000;
        anybuttonPressed = true;
+       buzzer_sound = true; //turns on buzzer
      } 
  //when pomodoro is active and again the start button is pressed will reset timer
   if((menu == 1) && !digitalRead(left) && pomodoro_active && !anybuttonPressed)
      {
        pomodoro_active = false;
        anybuttonPressed = true;
+       buzzer_sound = false; //turns off buzzer_sound
        //pomodoro_start = millis()/1000;
      }
 
@@ -198,10 +201,14 @@ void Pomodoro()
     //if time is up print take break
     else
     {
-      lcd.print("Take Break");
-      digitalWrite(buzzer, HIGH);
-      delay(2000);
-      digitalWrite(buzzer,LOW);  
+      if(buzzer_sound)
+      {
+        lcd.print("Take Break");
+        digitalWrite(buzzer, HIGH);
+        delay(2000);
+        digitalWrite(buzzer,LOW); 
+      }
+       buzzer_sound =  false; //turns off buzzer_sound
     }
   }
   
@@ -245,3 +252,4 @@ int ss2hh(unsigned long time2convert,bool to_print)
   else;
   return 0;
 }
+
